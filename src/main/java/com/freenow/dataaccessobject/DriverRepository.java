@@ -3,6 +3,8 @@ package com.freenow.dataaccessobject;
 import com.freenow.domainobject.DriverDO;
 import com.freenow.domainvalue.OnlineStatus;
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.repository.CrudRepository;
 
 /**
@@ -12,5 +14,6 @@ import org.springframework.data.repository.CrudRepository;
 public interface DriverRepository extends CrudRepository<DriverDO, Long>
 {
 
-    List<DriverDO> findByOnlineStatus(OnlineStatus onlineStatus);
+    List<DriverDO> findByOnlineStatusAndDeleted(OnlineStatus onlineStatus, Boolean deleted);
+    Optional<DriverDO> findByIdAndDeleted(Long id, Boolean deleted);
 }

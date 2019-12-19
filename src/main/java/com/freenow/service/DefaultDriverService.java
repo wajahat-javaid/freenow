@@ -1,17 +1,26 @@
-package com.freenow.service.driver;
+package com.freenow.service;
 
-import com.freenow.dataaccessobject.DriverRepository;
-import com.freenow.domainobject.DriverDO;
-import com.freenow.domainvalue.GeoCoordinate;
-import com.freenow.domainvalue.OnlineStatus;
-import com.freenow.exception.ConstraintsViolationException;
-import com.freenow.exception.EntityNotFoundException;
 import java.util.List;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.freenow.dataaccessobject.CarRepository;
+import com.freenow.dataaccessobject.DriverRepository;
+import com.freenow.domainobject.CarDO;
+import com.freenow.domainobject.DriverDO;
+import com.freenow.domainvalue.CarStatus;
+import com.freenow.domainvalue.GeoCoordinate;
+import com.freenow.domainvalue.OnlineStatus;
+import com.freenow.exception.CarAlreadyInUseException;
+import com.freenow.exception.ConstraintsViolationException;
+import com.freenow.exception.EntityNotFoundException;
 
 /**
  * Service to encapsulate the link between DAO and controller and to have business logic for some driver specific things.
@@ -24,11 +33,14 @@ public class DefaultDriverService implements DriverService
     private static final Logger LOG = LoggerFactory.getLogger(DefaultDriverService.class);
 
     private final DriverRepository driverRepository;
+    private final CarRepository carRepository;
 
 
-    public DefaultDriverService(final DriverRepository driverRepository)
+    @Autowired
+    public DefaultDriverService(final DriverRepository driverRepository, final CarRepository carRepository)
     {
         this.driverRepository = driverRepository;
+        this.carRepository = carRepository;
     }
 
 
@@ -110,14 +122,36 @@ public class DefaultDriverService implements DriverService
     @Override
     public List<DriverDO> find(OnlineStatus onlineStatus)
     {
-        return driverRepository.findByOnlineStatus(onlineStatus);
+        return driverRepository.findByOnlineStatusAndDeleted(onlineStatus, false);
     }
 
 
     private DriverDO findDriverChecked(Long driverId) throws EntityNotFoundException
     {
-        return driverRepository.findById(driverId)
+        return driverRepository
+            .findByIdAndDeleted(driverId, false)
             .orElseThrow(() -> new EntityNotFoundException("Could not find entity with id: " + driverId));
+    }
+
+
+    /**
+     * Fetching and Updating of Car needs to be done in a transaction, 
+     * CarDO related operations are done in service layer for this reason.
+     * A more pro-consistency approach is used here, a better performance version would be 
+     * optimistic locking.
+     * 
+     */
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Override
+    public void selectCar(DriverDO driver, Long carId) throws EntityNotFoundException, CarAlreadyInUseException
+    {
+        CarDO car = carRepository.findByIdAndDeletedWithLock(carId, false).orElseThrow(() -> new EntityNotFoundException("Could not find entity with id: " + carId));
+        if( car.getCarStatus() == CarStatus.IN_USE )
+        {
+            throw new CarAlreadyInUseException(String.format("Car %s is already in use", carId));
+        }
+        car.setCarStatus(CarStatus.IN_USE);
+        driver.setCar(car);
     }
 
 }

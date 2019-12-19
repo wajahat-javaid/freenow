@@ -1,26 +1,32 @@
 package com.freenow.domainobject;
 
-import com.freenow.domainvalue.GeoCoordinate;
-import com.freenow.domainvalue.OnlineStatus;
 import java.time.ZonedDateTime;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
+
 import org.springframework.format.annotation.DateTimeFormat;
+
+import com.freenow.domainvalue.GeoCoordinate;
+import com.freenow.domainvalue.OnlineStatus;
 
 @Entity
 @Table(
     name = "driver",
-    uniqueConstraints = @UniqueConstraint(name = "uc_username", columnNames = {"username"})
-)
+    uniqueConstraints = @UniqueConstraint(name = "uc_username", columnNames = {"username"}))
 public class DriverDO
 {
 
@@ -54,10 +60,13 @@ public class DriverDO
     @Column(nullable = false)
     private OnlineStatus onlineStatus;
 
+    @JoinColumn(name = "car_id", referencedColumnName = "id")
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private CarDO car;
+
 
     private DriverDO()
-    {
-    }
+    {}
 
 
     public DriverDO(String username, String password)
@@ -129,6 +138,18 @@ public class DriverDO
     {
         this.coordinate = coordinate;
         this.dateCoordinateUpdated = ZonedDateTime.now();
+    }
+
+
+    public CarDO getCar()
+    {
+        return car;
+    }
+
+
+    public void setCar(CarDO car)
+    {
+        this.car = car;
     }
 
 }

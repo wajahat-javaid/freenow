@@ -4,9 +4,11 @@ import com.freenow.controller.mapper.DriverMapper;
 import com.freenow.datatransferobject.DriverDTO;
 import com.freenow.domainobject.DriverDO;
 import com.freenow.domainvalue.OnlineStatus;
+import com.freenow.exception.CarAlreadyInUseException;
 import com.freenow.exception.ConstraintsViolationException;
 import com.freenow.exception.EntityNotFoundException;
-import com.freenow.service.driver.DriverService;
+import com.freenow.service.DriverService;
+
 import java.util.List;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,4 +80,23 @@ public class DriverController
     {
         return DriverMapper.makeDriverDTOList(driverService.find(onlineStatus));
     }
+
+
+    @PutMapping("/{driverId}/cars/{carId}")
+    public void selectCar(@PathVariable long driverId, @PathVariable long carId) throws EntityNotFoundException, ConstraintsViolationException, CarAlreadyInUseException
+    {
+        DriverDO driver = driverService.find(driverId);
+        if (OnlineStatus.OFFLINE == driver.getOnlineStatus())
+        {
+            throw new ConstraintsViolationException("Driver must be ONLINE to select a car");
+
+        }
+        if (driver.getCar() != null)
+        {
+            throw new ConstraintsViolationException("Driver has already selected a Car ");
+        }
+        driverService.selectCar(driver, carId);
+
+    }
+
 }
