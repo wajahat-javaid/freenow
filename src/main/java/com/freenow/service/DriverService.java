@@ -7,9 +7,13 @@ import com.freenow.exception.ConstraintsViolationException;
 import com.freenow.exception.EntityNotFoundException;
 import java.util.List;
 
+import org.springframework.data.jpa.domain.Specification;
+
 public interface DriverService
 {
 
+    List<DriverDO> findAll( Specification<DriverDO> specification );
+    
     DriverDO find(Long driverId) throws EntityNotFoundException;
 
     DriverDO create(DriverDO driverDO) throws ConstraintsViolationException;
@@ -21,5 +25,7 @@ public interface DriverService
     List<DriverDO> find(OnlineStatus onlineStatus);
 
     void selectCar(DriverDO driver, Long carId) throws EntityNotFoundException, CarAlreadyInUseException;
+    
+    void deselectCar(DriverDO driver, Long carId) throws EntityNotFoundException, ConstraintsViolationException;
 
 }

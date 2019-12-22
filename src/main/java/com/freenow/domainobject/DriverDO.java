@@ -16,6 +16,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -64,7 +65,9 @@ public class DriverDO
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private CarDO car;
 
-
+    @Version
+    private long version=0;
+    
     private DriverDO()
     {}
 

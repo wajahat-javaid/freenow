@@ -1,16 +1,20 @@
 package com.freenow.datatransferobject;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.freenow.domainvalue.GeoCoordinate;
 import javax.validation.constraints.NotNull;
 
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.ResourceSupport;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.freenow.domainvalue.GeoCoordinate;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class DriverDTO
+public class DriverDTO extends ResourceSupport
 {
+
     @JsonIgnore
-    private Long id;
+    private Long driverId;
 
     @NotNull(message = "Username can not be null!")
     private String username;
@@ -22,29 +26,23 @@ public class DriverDTO
 
 
     private DriverDTO()
-    {
-    }
+    {}
 
 
-    private DriverDTO(Long id, String username, String password, GeoCoordinate coordinate)
+    private DriverDTO(Long driverId, String username, String password, GeoCoordinate coordinate, Link link)
     {
-        this.id = id;
+
+        this.driverId = driverId;
         this.username = username;
         this.password = password;
         this.coordinate = coordinate;
+        add(link);
     }
 
 
     public static DriverDTOBuilder newBuilder()
     {
         return new DriverDTOBuilder();
-    }
-
-
-    @JsonProperty
-    public Long getId()
-    {
-        return id;
     }
 
 
@@ -65,17 +63,30 @@ public class DriverDTO
         return coordinate;
     }
 
+
+    public Long getDriverId()
+    {
+        return driverId;
+    }
+
+
+    public void setDriverId(Long driverId)
+    {
+        this.driverId = driverId;
+    }
+
     public static class DriverDTOBuilder
     {
-        private Long id;
+        private Long driverId;
         private String username;
         private String password;
         private GeoCoordinate coordinate;
+        Link link;
 
 
         public DriverDTOBuilder setId(Long id)
         {
-            this.id = id;
+            this.driverId = id;
             return this;
         }
 
@@ -103,8 +114,15 @@ public class DriverDTO
 
         public DriverDTO createDriverDTO()
         {
-            return new DriverDTO(id, username, password, coordinate);
+            return new DriverDTO(driverId, username, password, coordinate, link);
+        }
+
+
+        public void setCarLink(Link link)
+        {
+            this.link = link;
         }
 
     }
+
 }

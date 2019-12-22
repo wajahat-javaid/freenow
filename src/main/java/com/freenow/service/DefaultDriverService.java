@@ -1,12 +1,15 @@
 package com.freenow.service;
 
 import java.util.List;
-import java.util.Optional;
+
+import javax.validation.ConstraintViolationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +37,8 @@ public class DefaultDriverService implements DriverService
 
     private final DriverRepository driverRepository;
     private final CarRepository carRepository;
+
+    private static final String ENTITY_NOT_FOUND_MESSAGE = "Could not find entity with id: %s";
 
 
     @Autowired
@@ -130,28 +135,68 @@ public class DefaultDriverService implements DriverService
     {
         return driverRepository
             .findByIdAndDeleted(driverId, false)
-            .orElseThrow(() -> new EntityNotFoundException("Could not find entity with id: " + driverId));
+            .orElseThrow(() -> new EntityNotFoundException(String.format(ENTITY_NOT_FOUND_MESSAGE, driverId)));
     }
 
 
     /**
-     * Fetching and Updating of Car needs to be done in a transaction, 
-     * CarDO related operations are done in service layer for this reason.
-     * A more pro-consistency approach is used here, a better performance version would be 
-     * optimistic locking.
      * 
+     * Using Optimistic Locking to ensure car gets only one update
      */
     @Transactional(isolation = Isolation.READ_COMMITTED)
     @Override
     public void selectCar(DriverDO driver, Long carId) throws EntityNotFoundException, CarAlreadyInUseException
     {
-        CarDO car = carRepository.findByIdAndDeletedWithLock(carId, false).orElseThrow(() -> new EntityNotFoundException("Could not find entity with id: " + carId));
-        if( car.getCarStatus() == CarStatus.IN_USE )
+        try
         {
+            CarDO car = carRepository.findByIdAndDeleted(carId, false).orElseThrow(() -> new EntityNotFoundException(String.format(ENTITY_NOT_FOUND_MESSAGE, carId)));
+            if (car.getCarStatus() == CarStatus.IN_USE)
+            {
+                throw new CarAlreadyInUseException(String.format("Car %s is already in use", carId));
+            }
+            car.setCarStatus(CarStatus.IN_USE);
+            driver.setCar(car);
+        }
+        catch (ObjectOptimisticLockingFailureException ex)
+        {
+            String message = ex.getMessage();
+            LOG.error(String.format(" Excption While Persisting data: %s", message), ex);
+            if (message != null && message.contains("DriverDO"))
+            {
+                throw new ConstraintViolationException(String.format("Driver: %s must not have a Car selected", driver.getId()), null);
+            }
+
             throw new CarAlreadyInUseException(String.format("Car %s is already in use", carId));
         }
-        car.setCarStatus(CarStatus.IN_USE);
-        driver.setCar(car);
+    }
+
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Override
+    public void deselectCar(DriverDO driver, Long carId) throws EntityNotFoundException, ConstraintsViolationException
+    {
+        try
+        {
+            CarDO car = carRepository.findByIdAndDeleted(carId, false).orElseThrow(() -> new EntityNotFoundException(String.format(ENTITY_NOT_FOUND_MESSAGE, carId)));
+            if (car.getCarStatus() == CarStatus.FREE)
+            {
+                throw new ConstraintsViolationException(String.format("Car %s must be booked before deselecting", carId));
+            }
+            car.setCarStatus(CarStatus.FREE);
+            driver.setCar(null);
+        }
+        catch (ObjectOptimisticLockingFailureException ex)
+        {
+            LOG.error(String.format(" Excption While Persisting data: %s", ex.getMessage()), ex);
+            throw new ConstraintViolationException(String.format("Car: %s must be booked or Driver: %s must have a Car selected", carId, driver.getId()), null);
+        }
+    }
+
+
+    @Override
+    public List<DriverDO> findAll(Specification<DriverDO> specification)
+    {
+        return driverRepository.findAll(specification);
     }
 
 }
