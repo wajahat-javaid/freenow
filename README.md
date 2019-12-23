@@ -74,3 +74,24 @@ Good luck!
 
 
 _NOTE: Please make sure to not submit any personal data with your tests result. Personal data is for example your name, your birth date, email address etc._
+
+
+## Implementation Details
+*Task 1, new endpoints under v1/cars, Update car can only be done by Admin.
+
+*Task 2 is implemented using Optimistic locking, both Car and Driver domain objects have a version field. Has been tested with JMETER with concurrent requests on Same resource.
+
+*Task 3 has been implemented Using RSQL
+data can be searched using a wide range of filters combining them using AND(;) OR(,)
+operators include equality (==), > (=gt=), < (=lt=), like(*), in(=in=), Not Equal(!=)
+Not in (=out=)
+
+*Security Implemented through Spring Security, for now form based.(First Request results in login form, add JSESSION ID cookie in subsequent requests)
+
+ Searching of drivers and updating car status can only be done through Admin role.
+Drivers can login with their username and password.
+Admin credentials are in the DB script.
+
+*Added Unit Tests
+
+*DB script updated for all the changes
