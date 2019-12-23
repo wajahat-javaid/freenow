@@ -13,8 +13,7 @@ public class NotDeletedSpecification
 
     public static Specification<DriverDO> isNotDeleted()
     {
-        return (root, query, cb) -> {
-            return cb.equal(root.get("deleted"), false);
-        };
+        return (root, query, cb) -> cb.equal(root.get("deleted"), false);
+
     }
 }
