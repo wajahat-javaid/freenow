@@ -112,15 +112,16 @@ public class DriverDTO extends ResourceSupport
         }
 
 
-        public DriverDTO createDriverDTO()
+        public DriverDTOBuilder setCarLink(Link link)
         {
-            return new DriverDTO(driverId, username, password, coordinate, link);
+            this.link = link;
+            return this;
         }
 
 
-        public void setCarLink(Link link)
+        public DriverDTO createDriverDTO()
         {
-            this.link = link;
+            return new DriverDTO(driverId, username, password, coordinate, link);
         }
 
     }

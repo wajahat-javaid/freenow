@@ -24,6 +24,7 @@ import com.freenow.domainvalue.OnlineStatus;
 import com.freenow.exception.CarAlreadyInUseException;
 import com.freenow.exception.ConstraintsViolationException;
 import com.freenow.exception.EntityNotFoundException;
+import com.freenow.query.search.NotDeletedSpecification;
 
 /**
  * Service to encapsulate the link between DAO and controller and to have business logic for some driver specific things.
@@ -196,6 +197,8 @@ public class DefaultDriverService implements DriverService
     @Override
     public List<DriverDO> findAll(Specification<DriverDO> specification)
     {
+        //Handle Soft Deletes 
+        specification.and(NotDeletedSpecification.isNotDeleted());
         return driverRepository.findAll(specification);
     }
 

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
+import org.springframework.hateoas.Link;
 
 import com.freenow.controller.mapper.CarMapper;
 import com.freenow.controller.mapper.DriverMapper;
@@ -68,16 +69,21 @@ public class MappersTest
     public void WhenDriverDOConvertedToDTO_thenCorrect()
     {
 
+        CarDO car = new CarDO("licensePlate", 4, 5, true, EngineType.GAS, "Manufacturer");
+        car.setId(6l);
+
         DriverDO driver = new DriverDO("User1", "Pass1");
         driver.setId(400l);
         driver.setCoordinate(new GeoCoordinate(44.0, 32.0));
+        driver.setCar(car);
 
         DriverDTO driverDTO = DriverMapper.makeDriverDTO(driver);
 
         assertThat(driverDTO.getCoordinate(), is(driver.getCoordinate()));
-        assertEquals(driverDTO.getId(), driver.getId());
-        assertEquals(driverDTO.getPassword(), driver.getPassword());
+        assertEquals(driverDTO.getDriverId(), driver.getId());
+        assertEquals(driverDTO.getPassword(), "******");
         assertEquals(driverDTO.getUsername(), driver.getUsername());
+        assertEquals(driverDTO.getLink("car").getHref(), "/v1/cars/6");
 
     }
 
@@ -90,6 +96,7 @@ public class MappersTest
                 .newBuilder()
                 .setPassword("testPass")
                 .setUsername("testUser")
+                .setCarLink(new Link("/v1/drivers"))
                 .createDriverDTO();
 
         DriverDO driver = DriverMapper.makeDriverDO(driverDTO);

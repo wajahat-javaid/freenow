@@ -17,4 +17,6 @@ public interface DriverRepository extends CrudRepository<DriverDO, Long>, JpaSpe
 
     List<DriverDO> findByOnlineStatusAndDeleted(OnlineStatus onlineStatus, Boolean deleted);
     Optional<DriverDO> findByIdAndDeleted(Long id, Boolean deleted);
+    Optional<DriverDO> findByUsername(String username);
+    
 }

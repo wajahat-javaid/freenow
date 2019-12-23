@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.freenow.controller.CarController;
+import com.freenow.controller.DriverController;
 import com.freenow.datatransferobject.DriverDTO;
 import com.freenow.domainobject.CarDO;
 import com.freenow.domainobject.DriverDO;
@@ -21,7 +22,8 @@ public class DriverMapper
 {
 
     private static final Logger LOG = LoggerFactory.getLogger(DriverMapper.class);
-    
+
+
     private DriverMapper()
     {
 
@@ -40,7 +42,7 @@ public class DriverMapper
             DriverDTO
                 .newBuilder()
                 .setId(driverDO.getId())
-                .setPassword(driverDO.getPassword())
+                .setPassword("******")
                 .setUsername(driverDO.getUsername());
 
         GeoCoordinate coordinate = driverDO.getCoordinate();
@@ -48,24 +50,27 @@ public class DriverMapper
         {
             driverDTOBuilder.setCoordinate(coordinate);
         }
-
-        CarDO car = driverDO.getCar();
-        if (car != null)
+        try
         {
-            try
+            CarDO car = driverDO.getCar();
+            if (car != null)
             {
                 driverDTOBuilder
                     .setCarLink(
                         linkTo(
                             methodOn(CarController.class)
                                 .getcar(car.getId())).withRel("car"));
+
             }
-            catch (EntityNotFoundException e)
+            else
             {
-               LOG.error(String.format( "Exception in DTO to DO coversion: %s", e.getMessage() ), e);
+                driverDTOBuilder.setCarLink(linkTo(methodOn(DriverController.class).getDriver(driverDO.getId())).withRel("self"));
             }
         }
-
+        catch (EntityNotFoundException e)
+        {
+            LOG.error(String.format("Exception in DTO to DO coversion: %s", e.getMessage()), e);
+        }
         return driverDTOBuilder.createDriverDTO();
     }
 

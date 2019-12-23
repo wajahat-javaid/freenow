@@ -202,4 +202,96 @@ public class CarDO
         this.version = version;
     }
 
+
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((carStatus == null) ? 0 : carStatus.hashCode());
+        result = prime * result + ((convertible == null) ? 0 : convertible.hashCode());
+        result = prime * result + ((dateCreated == null) ? 0 : dateCreated.hashCode());
+        result = prime * result + ((deleted == null) ? 0 : deleted.hashCode());
+        result = prime * result + ((engineType == null) ? 0 : engineType.hashCode());
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result + ((licensePlate == null) ? 0 : licensePlate.hashCode());
+        result = prime * result + ((manufacturer == null) ? 0 : manufacturer.hashCode());
+        result = prime * result + ((rating == null) ? 0 : rating.hashCode());
+        result = prime * result + ((seatCount == null) ? 0 : seatCount.hashCode());
+        result = prime * result + (int) (version ^ (version >>> 32));
+        return result;
+    }
+
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        CarDO other = (CarDO) obj;
+        if (carStatus != other.carStatus)
+            return false;
+        if (convertible == null)
+        {
+            if (other.convertible != null)
+                return false;
+        }
+        else if (!convertible.equals(other.convertible))
+            return false;
+        if (dateCreated == null)
+        {
+            if (other.dateCreated != null)
+                return false;
+        }
+        if (deleted == null)
+        {
+            if (other.deleted != null)
+                return false;
+        }
+        else if (!deleted.equals(other.deleted))
+            return false;
+        if (engineType != other.engineType)
+            return false;
+        if (id == null)
+        {
+            if (other.id != null)
+                return false;
+        }
+        if (licensePlate == null)
+        {
+            if (other.licensePlate != null)
+                return false;
+        }
+        else if (!licensePlate.equals(other.licensePlate))
+            return false;
+        if (manufacturer == null)
+        {
+            if (other.manufacturer != null)
+                return false;
+        }
+        else if (!manufacturer.equals(other.manufacturer))
+            return false;
+        if (rating == null)
+        {
+            if (other.rating != null)
+                return false;
+        }
+        else if (!rating.equals(other.rating))
+            return false;
+        if (seatCount == null)
+        {
+            if (other.seatCount != null)
+                return false;
+        }
+        else if (!seatCount.equals(other.seatCount))
+            return false;
+        if (version != other.version)
+            return false;
+        return true;
+    }
+
 }

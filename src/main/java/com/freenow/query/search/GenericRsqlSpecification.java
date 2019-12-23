@@ -1,6 +1,5 @@
 package com.freenow.query.search;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,7 +38,6 @@ public class GenericRsqlSpecification<T> implements Specification<T>
     @Override
     public Predicate toPredicate(final Root<T> root, final CriteriaQuery<?> query, final CriteriaBuilder builder)
     {
-        // Join<CarDO,T> rootJoined = root.join("car", JoinType.LEFT);
         final List<Object> args = castArguments(root);
         final Object argument = args.get(0);
         switch (RsqlSearchOperation.getSimpleOperator(operator))
@@ -132,7 +130,8 @@ public class GenericRsqlSpecification<T> implements Specification<T>
         return args;
     }
 
-//Making this generic requires ugly hacks
+
+    //Making this generic requires ugly hacks
     private boolean isFieldInCar(String fieldName)
     {
         boolean result = true;
@@ -147,8 +146,11 @@ public class GenericRsqlSpecification<T> implements Specification<T>
         return result;
     }
 
-    private <K> Path<K> getPath(Root<T> root){
-        if( isFieldInCar(property) ) {
+
+    private <K> Path<K> getPath(Root<T> root)
+    {
+        if (isFieldInCar(property))
+        {
             return root.<K>get("car").get(property);
         }
         return root.<K>get(property);

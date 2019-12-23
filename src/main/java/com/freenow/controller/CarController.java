@@ -67,7 +67,6 @@ public class CarController
     }
 
 
-    //TODO: should only be usable by admin
     @PutMapping("/{carId}")
     public void updateStatus(
         @PathVariable long carId, @RequestParam CarStatus carStatus)

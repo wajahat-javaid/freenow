@@ -2,6 +2,9 @@
  * CREATE Script for init of DB
  */
 
+--Data for Admin account
+insert into admin_credentials (id, date_created, username, password, deleted) values (1, now(), 'Admin', '@dmiN',FALSE);
+
 -- Data for Cars
 insert into car (id, date_created, license_plate, seat_count, convertible, rating, engine_type, deleted, car_status, manufacturer,version)
 values

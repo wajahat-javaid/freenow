@@ -121,7 +121,7 @@ public class DefaultCarService implements CarService
     {
         return carRepository
             .findByIdAndDeleted(carId, false)
-            .orElseThrow(() -> new EntityNotFoundException("Could not find entity with id: " + carId));
+            .orElseThrow(() -> new EntityNotFoundException(String.format("Could not find entity with id: %s", carId)));
     }
 
 }

@@ -83,14 +83,13 @@ public class DriverController
     }
 
 
-    //TODO only for ADMIN
-    @GetMapping( produces = { "application/hal+json" })
-    public List<DriverDTO> findDrivers( @RequestParam(value = "search") String search )
+    @GetMapping(produces = {"application/hal+json"})
+    public List<DriverDTO> findDrivers(@RequestParam(value = "search") String search)
     {
 
-            Node rootNode = new RSQLParser().parse(search);
-            Specification<DriverDO> spec = rootNode.accept(new RsqlVisitor<DriverDO>());
-            return DriverMapper.makeDriverDTOList(driverService.findAll(spec));
+        Node rootNode = new RSQLParser().parse(search);
+        Specification<DriverDO> spec = rootNode.accept(new RsqlVisitor<DriverDO>());
+        return DriverMapper.makeDriverDTOList(driverService.findAll(spec));
 
     }
 
@@ -106,7 +105,7 @@ public class DriverController
         }
         if (driver.getCar() != null)
         {
-            throw new ConstraintsViolationException("Driver has already selected a Car ");
+            throw new ConstraintsViolationException("Driver has already selected a Car");
         }
         try
         {
